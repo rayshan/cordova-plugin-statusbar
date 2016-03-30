@@ -73,7 +73,7 @@ var StatusBar = {
     },
 
     backgroundColorByHexString: function (hexString) {
-        if (hexString.charAt(0) !== "#") {
+        if (hexString.charAt(0) !== "#" && !["transparent", "translucent"].includes(hexString)) {
             hexString = "#" + hexString;
         }
 
