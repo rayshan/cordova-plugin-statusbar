@@ -163,9 +163,9 @@ public class StatusBar extends CordovaPlugin {
 
     private void setStatusBarBackgroundColor(final String colorPref) {
         // Determined by setStatusBarColor & FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
-        final boolean canSetToTransparent = Build.VERSION.SDK_INT >= 21;
+        final boolean canSetToTransparent = Build.VERSION.SDK_INT >= 21; // Lollipop
         // Determined by FLAG_TRANSLUCENT_STATUS
-        final boolean canSetToTranslucent = Build.VERSION.SDK_INT >= 19;
+        final boolean canSetToTranslucent = Build.VERSION.SDK_INT >= 19; // KitKat
 
         Log.w(TAG, "colorPref = " + colorPref);
         if (colorPref != null && !colorPref.isEmpty()) {
@@ -200,9 +200,9 @@ public class StatusBar extends CordovaPlugin {
                 }
 
             } else {
+                Log.w(TAG, "Setting to solid color");
                 final String colorPrefFallback = 
                     preferences.getString("StatusBarBackgroundColorFallback", null);
-                Log.w(TAG, "Setting to solid color");
                 if (canSetToTransparent) {
                     this.clearTransparentSetting();
                 }
@@ -216,12 +216,16 @@ public class StatusBar extends CordovaPlugin {
                     // Using reflection makes sure any 5.0+ device will work without having to compile with SDK level 21
                     this.window.getClass()
                         .getDeclaredMethod("setStatusBarColor", int.class)
-                        .invoke(window, Color.parseColor(colorPrefFallback != null ? colorPrefFallback : colorPref));
+                        .invoke(
+                            this.window,
+                            Color.parseColor(colorPrefFallback != null ? colorPrefFallback : colorPref)
+                        );
                 } catch (IllegalArgumentException ignore) {
                     Log.e(TAG, "Invalid hexString argument, use f.i. '#999999'");
-                } catch (Exception ignore) {
-                    // this should not happen, only in case Android removes this method in a version > 21
+                } catch (NoSuchMethodException ignore) {
                     Log.w(TAG, "Method window.setStatusBarColor not found for SDK level " + Build.VERSION.SDK_INT);
+                } catch (Exception e) {
+                    Log.e(TAG, "exception", e);
                 }
             }
 
